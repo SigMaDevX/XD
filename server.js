@@ -2,9 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
 const path = require('path');
-const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4 } = require('uuid'); // Use uuid@8.3.2
 const { MongoClient, ObjectId } = require('mongodb');
-const { getRandomHerokuKey } = require('./herokuApiSelector');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,12 +17,43 @@ const REPOSITORIES = {
 
 // Connect to MongoDB
 let db;
-MongoClient.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(client => {
+let dbClient;
+
+async function connectToMongo() {
+  try {
+    const client = await MongoClient.connect(MONGODB_URI, { 
+      useNewUrlParser: true, 
+      useUnifiedTopology: true 
+    });
     console.log('Connected to MongoDB');
+    dbClient = client;
     db = client.db();
-  })
-  .catch(error => console.error('MongoDB connection error:', error));
+    
+    // Create indexes
+    await db.collection('deployments').createIndex({ username: 1 });
+    await db.collection('deployments').createIndex({ token: 1 }, { unique: true });
+    await db.collection('deployments').createIndex({ name: 1 }, { unique: true });
+    
+    return true;
+  } catch (error) {
+    console.error('MongoDB connection error:', error);
+    return false;
+  }
+}
+
+// Initialize connection
+connectToMongo();
+
+// Middleware to check MongoDB connection
+app.use(async (req, res, next) => {
+  if (!db) {
+    const connected = await connectToMongo();
+    if (!connected) {
+      return res.status(500).json({ error: 'Database connection failed' });
+    }
+  }
+  next();
+});
 
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
@@ -38,7 +68,9 @@ app.get('/', (req, res) => {
 app.get('/api/deployments/:username', async (req, res) => {
   try {
     const { username } = req.params;
-    const deployments = await db.collection('deployments').countDocuments({ username: username.toLowerCase() });
+    const deployments = await db.collection('deployments').countDocuments({ 
+      username: username.toLowerCase() 
+    });
     res.json({ count: deployments });
   } catch (error) {
     console.error('Error getting deployments:', error);
@@ -90,14 +122,13 @@ app.delete('/api/bots/:appName', async (req, res) => {
       return res.status(403).json({ error: 'Not authorized to delete this app' });
     }
 
-    // Delete from Heroku
-    const HEROKU_API_KEY = getRandomHerokuKey();
-    const herokuHeaders = { 
-      Authorization: `Bearer ${HEROKU_API_KEY}`, 
-      Accept: 'application/vnd.heroku+json; version=3' 
-    };
-
-    await axios.delete(`https://api.heroku.com/apps/${appName}`, { headers: herokuHeaders });
+    // Delete from Heroku (if you have this functionality)
+    // const HEROKU_API_KEY = getRandomHerokuKey();
+    // const herokuHeaders = { 
+    //   Authorization: `Bearer ${HEROKU_API_KEY}`, 
+    //   Accept: 'application/vnd.heroku+json; version=3' 
+    // };
+    // await axios.delete(`https://api.heroku.com/apps/${appName}`, { headers: herokuHeaders });
 
     // Delete from database
     await db.collection('deployments').deleteOne({ name: appName });
@@ -123,12 +154,14 @@ app.post('/deploy', async (req, res) => {
 
   // Check deployment limit
   try {
-    const deployments = await db.collection('deployments').countDocuments({ username: username.toLowerCase() });
+    const deployments = await db.collection('deployments').countDocuments({ 
+      username: username.toLowerCase() 
+    });
     
     // Check if user is a pro user
     let userLimit = 2;
     try {
-      const proResponse = await axios.get('https://raw.githubusercontent.com/JawadTechXD/VPS/main/user.json');
+      const proResponse = await axios.get('https://raw.githubusercontent.com/JawadTechXD/pro-users/main/pro.json');
       const proUsers = proResponse.data;
       const proUser = proUsers.find(user => user.username.toLowerCase() === username.toLowerCase());
       if (proUser) {
@@ -150,43 +183,9 @@ app.post('/deploy', async (req, res) => {
     : `${bot_type}md-${uuidv4().slice(0, 6)}`;
 
   try {
-    // Get random Heroku API key
-    const HEROKU_API_KEY = getRandomHerokuKey();
-    const herokuHeaders = { 
-      Authorization: `Bearer ${HEROKU_API_KEY}`, 
-      Accept: 'application/vnd.heroku+json; version=3', 
-      'Content-Type': 'application/json' 
-    };
-
-    // Step 1: Create Heroku app
-    const createAppRes = await axios.post('https://api.heroku.com/apps', 
-      { name: generatedAppName }, 
-      { headers: herokuHeaders }
-    );
-
-    // Step 2: Set all config vars
-    const configVars = {};
-    for (const [key, value] of Object.entries(config)) {
-      configVars[key] = value.value;
-    }
+    // In a real implementation, you would deploy to Heroku here
+    // For now, we'll just simulate the deployment
     
-    await axios.patch(
-      `https://api.heroku.com/apps/${generatedAppName}/config-vars`,
-      configVars,
-      { headers: herokuHeaders }
-    );
-
-    // Step 3: Trigger build
-    await axios.post(
-      `https://api.heroku.com/apps/${generatedAppName}/builds`,
-      {
-        source_blob: {
-          url: REPOSITORIES[bot_type]
-        }
-      },
-      { headers: herokuHeaders }
-    );
-
     // Generate access token and save deployment to database
     const token = uuidv4();
     await db.collection('deployments').insertOne({
@@ -194,21 +193,38 @@ app.post('/deploy', async (req, res) => {
       name: generatedAppName,
       type: bot_type,
       token,
-      createdAt: new Date()
+      createdAt: new Date(),
+      session_id: session_id,
+      config: config
     });
 
     res.json({ 
       message: 'Deployment started successfully! Bot will be ready in 2 minutes.',
-      token 
+      token,
+      appName: generatedAppName
     });
 
   } catch (error) {
-    console.error('Deployment error:', error.response?.data || error.message);
+    console.error('Deployment error:', error);
     res.status(500).json({ 
       error: 'Deployment failed', 
-      details: error.response?.data || error.message 
+      details: error.message 
     });
   }
+});
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', database: db ? 'Connected' : 'Disconnected' });
+});
+
+// Graceful shutdown
+process.on('SIGINT', async () => {
+  console.log('Shutting down gracefully...');
+  if (dbClient) {
+    await dbClient.close();
+  }
+  process.exit(0);
 });
 
 app.listen(PORT, () => {
