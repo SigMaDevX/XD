@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Deploy KHAN-MD & JAWAD-MD Bots</title>
+  <style>
+    :root {
+      --primary-color: #3498db;
+      --secondary-color: #ecf0f1;
+      --accent-color: #2980b9;
+      --text-color: #2c3e50;
+      --background-color: #f9f9f9;
+      --hover-color: #d6eaf8;
+      --border-color: rgba(52, 152, 219, 0.3);
+      --button-gradient: linear-gradient(135deg, #3498db, #2980b9);
+      --jawad-color: #9b59b6;
+      --jawad-gradient: linear-gradient(135deg, #9b59b6, #8e44ad);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--background-color);
+      color: var(--text-color);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 15px;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(52, 152, 219, 0.1) 0%, transparent 20%),
+        radial-gradient(circle at 90% 80%, rgba(41, 128, 185, 0.1) 0%, transparent 20%);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+      background: white;
+      border-radius: 16px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      border: 1px solid var(--border-color);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .container::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 8px;
+      background: var(--button-gradient);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .logo {
+      width: 70px;
+      height: 70px;
+      margin: 0 auto 16px;
+      background: var(--button-gradient);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      color: white;
+      box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+    }
+
+    .logo.jawad {
+      background: var(--jawad-gradient);
+      box-shadow: 0 5px 15px rgba(155, 89, 182, 0.4);
+    }
+
+    .title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--primary-color);
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .title.jawad {
+      color: var(--jawad-color);
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 20px;
+    }
+
+    .bot-selector {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+      gap: 15px;
+    }
+
+    .bot-btn {
+      padding: 10px 20px;
+      border: 2px solid var(--primary-color);
+      border-radius: 8px;
+      background: white;
+      color: var(--primary-color);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .bot-btn.active {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .bot-btn.jawad {
+      border-color: var(--jawad-color);
+      color: var(--jawad-color);
+    }
+
+    .bot-btn.jawad.active {
+      background: var(--jawad-color);
+      color: white;
+    }
+
+    .input-group {
+      margin-bottom: 15px;
+    }
+
+    .input-label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      font-size: 13px;
+      color: var(--primary-color);
+    }
+
+    .jawad .input-label {
+      color: var(--jawad-color);
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 12px;
+      border: 1.5px solid #ddd;
+      border-radius: 12px;
+      background: white;
+      color: var(--text-color);
+      font-size: 15px;
+      transition: all 0.3s ease;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    }
+
+    .jawad .input-field:focus {
+      border-color: var(--jawad-color);
+      box-shadow: 0 0 0 3px rgba(155, 89, 182, 0.2);
+    }
+
+    .deploy-btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--button-gradient);
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 6px rgba(52, 152, 219, 0.3);
+    }
+
+    .jawad .deploy-btn {
+      background: var(--jawad-gradient);
+      box-shadow: 0 4px 6px rgba(155, 89, 182, 0.3);
+    }
+
+    .deploy-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 12px rgba(52, 152, 219, 0.4);
+      background: linear-gradient(135deg, #5dade2, #3498db);
+    }
+
+    .jawad .deploy-btn:hover {
+      box-shadow: 0 6px 12px rgba(155, 89, 182, 0.4);
+      background: linear-gradient(135deg, #a569bd, #8e44ad);
+    }
+
+    .manage-btn {
+      width: 100%;
+      padding: 12px;
+      background: #2ecc71;
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
+    }
+
+    .manage-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 12px rgba(46, 204, 113, 0.4);
+      background: #27ae60;
+    }
+
+    .result-message {
+      background: white;
+      padding: 12px;
+      border-radius: 12px;
+      text-align: center;
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1.5px solid #eee;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .success {
+      color: #27ae60;
+    }
+
+    .error {
+      color: #e74c3c;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      margin: 16px 0;
+    }
+
+    .loading i {
+      font-size: 24px;
+      color: var(--primary-color);
+      animation: spin 1s linear infinite;
+    }
+
+    .jawad .loading i {
+      color: var(--jawad-color);
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 12px;
+      color: #888;
+    }
+
+    /* Config section */
+    .config-section {
+      margin-top: 30px;
+      border-top: 1px solid #eee;
+      padding-top: 20px;
+    }
+
+    .config-title {
+      font-size: 18px;
+      color: var(--primary-color);
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .jawad .config-title {
+      color: var(--jawad-color);
+    }
+
+    .config-toggle {
+      background: none;
+      border: none;
+      color: var(--primary-color);
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .jawad .config-toggle {
+      color: var(--jawad-color);
+    }
+
+    .config-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .config-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px;
+      background: var(--secondary-color);
+      border-radius: 8px;
+    }
+
+    .config-label {
+      font-size: 14px;
+      color: var(--text-color);
+    }
+
+    .config-value {
+      width: 100px;
+      padding: 5px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+    }
+
+    .checkbox-label {
+      margin-left: 8px;
+      font-size: 14px;
+    }
+
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 25px;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary-color);
+    }
+
+    .jawad .modal-title {
+      color: var(--jawad-color);
+    }
+
+    .close-modal {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #888;
+    }
+
+    /* Toast styles */
+    #toast {
+      display: none;
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: var(--primary-color);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+      transition: all 0.3s ease;
+      opacity: 0;
+    }
+
+    .jawad #toast {
+      background-color: var(--jawad-color);
+      box-shadow: 0 4px 12px rgba(155, 89, 182, 0.3);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px;
+      }
+      
+      .config-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .bot-selector {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="mainContainer">
+    <div class="header">
+      <div class="logo" id="logo"><i class="fas fa-robot"></i></div>
+      <h1 class="title" id="mainTitle">KHAN-MD BOT</h1>
+      <p class="subtitle">Deploy your WhatsApp bot</p>
+    </div>
+
+    <div class="bot-selector">
+      <button class="bot-btn active" id="khanBtn">KHAN-MD</button>
+      <button class="bot-btn jawad" id="jawadBtn">JAWAD-MD</button>
+    </div>
+
+    <div class="input-group">
+      <label class="input-label">GitHub Username</label>
+      <input type="text" id="username" class="input-field" placeholder="Enter your GitHub username">
+    </div>
+
+    <div class="input-group">
+      <label class="input-label">SESSION_ID</label>
+      <input type="text" id="session" class="input-field" placeholder="Enter your SESSION_ID (e.g. IK~xxx)">
+    </div>
+
+    <div class="input-group">
+      <label class="input-label">App Name (Optional)</label>
+      <input type="text" id="appname" class="input-field" 
+             placeholder="Leave blank for random name"
+             pattern="[a-zA-Z0-9-]*"
+             title="Only letters, numbers and hyphens are allowed">
+    </div>
+    
+    <button class="deploy-btn" id="deployBtn">
+      <i class="fas fa-rocket"></i> Deploy Bot
+    </button>
+
+    <button class="manage-btn" id="manageBtn">
+      <i class="fas fa-cog"></i> Manage Bots
+    </button>
+
+    <div class="loading" id="loading">
+      <i class="fas fa-spinner"></i>
+    </div>
+
+    <div class="result-message" id="result"></div>
+
+    <div class="config-section">
+      <h3 class="config-title">
+        Bot Configuration
+        <button class="config-toggle" id="toggleConfig">Show Config</button>
+      </h3>
+      
+      <div class="config-grid" id="configGrid" style="display: none;">
+        <!-- Config items will be added dynamically -->
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>© 2025 KHAN-MD & JAWAD-MD | Powered by Jᴀᴡᴀᴅ TᴇᴄʜX</p>
+    </div>
+  </div>
+
+  <!-- Manage Modal -->
+  <div class="modal" id="manageModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Manage Your Bots</h2>
+        <button class="close-modal" id="closeManageModal">&times;</button>
+      </div>
+      
+      <div class="input-group">
+        <label class="input-label">Access Token</label>
+        <input type="text" id="accessToken" class="input-field" placeholder="Enter your access token">
+      </div>
+      
+      <button class="deploy-btn" id="loadBotsBtn">
+        <i class="fas fa-sync"></i> Load My Bots
+      </button>
+      
+      <div id="botsList" style="margin-top: 20px;"></div>
+    </div>
+  </div>
+
+  <!-- Contact Modal -->
+  <div class="modal" id="contactModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Contact Admin</h2>
+        <button class="close-modal" id="closeContactModal">&times;</button>
+      </div>
+      
+      <p style="margin-bottom: 20px;">You've reached the maximum deployment limit. Please contact admin to request additional bot deployments.</p>
+      
+      <a href="https://wa.me/923427582273?text=wantPto" target="_blank" class="deploy-btn" style="text-decoration: none; text-align: center;">
+        <i class="fab fa-whatsapp"></i> Contact on WhatsApp
+      </a>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast"></div>
+
+  <!-- Font Awesome for icons -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+  
+  <script>
+    // Current bot type (khan or jawad)
+    let currentBotType = 'khan';
+    
+    // Configuration data for KHAN-MD
+    const khanConfig = {
+      "SESSION_ID": { type: "text", value: "", required: true },
+      "STICKER_NAME": { type: "text", value: "KHAN-MD", required: false },
+      "PREFIX": { type: "text", value: ".", required: false },
+      "MODE": { 
+        type: "select", 
+        value: "public", 
+        options: ["public", "private", "inbox", "group"],
+        required: false 
+      },
+      "ANTI_DELETE": { type: "checkbox", value: true, required: false },
+      "ALWAYS_ONLINE": { type: "checkbox", value: false, required: false },
+      "AUTO_REPLY": { type: "checkbox", value: false, required: false },
+      "AUTO_STICKER": { type: "checkbox", value: false, required: false },
+      "AUTO_STATUS_SEEN": { type: "checkbox", value: true, required: true },
+      "AUTO_STATUS_REACT": { type: "checkbox", value: true, required: true },
+      "AUTO_STATUS_REPLY": { type: "checkbox", value: false, required: true },
+      "AUTO_STATUS_MSG": { type: "text", value: "*SEEN YOUR STATUS BY KHAN-MD 🖤*", required: true },
+      "OWNER_NAME": { type: "text", value: "Jᴀᴡᴀᴅ TᴇᴄʜX", required: false },
+      "OWNER_NUMBER": { type: "text", value: "923427582273", required: false },
+      "BOT_NAME": { type: "text", value: "KHAN-MD", required: false },
+      "ANTI_LINK": { type: "checkbox", value: true, required: true },
+      "ANTI_BAD": { type: "checkbox", value: false, required: false },
+      "MENTION_REPLY": { type: "checkbox", value: false, required: false },
+      "MENU_IMAGE_URL": { type: "text", value: "https://files.catbox.moe/7zfdcq.jpg", required: false },
+      "DESCRIPTION": { type: "text", value: "*© ᴘᴏᴡᴇʀᴇᴅ ʙʏ Jᴀᴡᴀᴅ TᴇᴄʜX*", required: false },
+      "DELETE_LINKS": { type: "checkbox", value: false, required: false },
+      "AUTO_RECORDING": { type: "checkbox", value: false, required: false },
+      "AUTO_TYPING": { type: "checkbox", value: false, required: false },
+      "AUTO_REACT": { type: "checkbox", value: false, required: false },
+      "CUSTOM_REACT": { type: "checkbox", value: false, required: false },
+      "CUSTOM_REACT_EMOJIS": { type: "text", value: "💝,💖,💗,❤️‍🩹,❤️,🧡,💛,💚,💙,💜,🤎,🖤,🤍", required: false },
+      "ANTI_DEL_PATH": { 
+        type: "select", 
+        value: "inbox", 
+        options: ["inbox", "same"],
+        required: false 
+      },
+      "ADMIN_ACTION": { type: "checkbox", value: false, required: false },
+      "WELCOME": { type: "checkbox", value: false, required: false },
+      "GOODBYE": { type: "checkbox", value: false, required: false },
+      "READ_MESSAGE": { type: "checkbox", value: false, required: false }
+    };
+
+    // Configuration data for JAWAD-MD
+    const jawadConfig = {
+      "SESSION_ID": { type: "text", value: "", required: true },
+      "MODE": { 
+        type: "select", 
+        value: "public", 
+        options: ["public", "private", "inbox"],
+        required: false 
+      },
+      "OWNER_NAME": { type: "text", value: "JawadTechX", required: true },
+      "BOT_PIC": { type: "text", value: "https://files.catbox.moe/pf270b.jpg", required: false },
+      "OWNER_NUMBER": { type: "text", value: "923427582273", required: true },
+      "ANTI_DELETE": { type: "text", value: "true", required: false },
+      "SUDO_NUMBERS": { type: "text", value: "923427582273", required: false },
+      "CHAT_BOT": { type: "text", value: "", required: false },
+      "AUTO_READ_STATUS": { type: "text", value: "true", required: true },
+      "AUTO_LIKE_STATUS": { type: "text", value: "true", required: false },
+      "AUTO_LIKE_EMOJIS": { type: "text", value: "💜,💛,❤️,🤍,💙", required: false },
+      "AUTO_REPLY_STATUS": { type: "text", value: "false", required: false },
+      "STATUS_REPLY_MSG": { type: "text", value: "Status Viewed ✅️", required: false },
+      "AUTO_READ_MESSAGES": { type: "text", value: "false", required: false },
+      "PRESENCE": { type: "text", value: "online", required: true },
+      "ANTILINK": { type: "text", value: "", required: false },
+      "ANTIBAD": { type: "text", value: "false", required: false },
+      "BAD_WORDS": { type: "text", value: "fuck, pussy, anus, idiot", required: false },
+      "AUTO_AUDIO": { type: "text", value: "false", required: false },
+      "AUTO_BLOCK": { type: "text", value: "333,77,12", required: false },
+      "AUTO_REACT": { type: "text", value: "false", required: false },
+      "ANTICALL": { type: "text", value: "false", required: false },
+      "ANTICALL_MSG": { type: "text", value: "*_📞 Auto Call Reject Mode Activated by JAWAD-MD. 📵 No Calls Allowed!_*", required: false },
+      "BOT_NAME": { type: "text", value: "JAWAD-MD", required: false },
+      "PACK_NAME": { type: "text", value: "JAWAD-MD", required: false },
+      "PREFIX": { type: "text", value: ".", required: true }
+    };
+
+    // Toggle between KHAN and JAWAD
+    document.getElementById('khanBtn').addEventListener('click', function() {
+      if (currentBotType !== 'khan') {
+        currentBotType = 'khan';
+        updateUIForBotType();
+      }
+    });
+
+    document.getElementById('jawadBtn').addEventListener('click', function() {
+      if (currentBotType !== 'jawad') {
+        currentBotType = 'jawad';
+        updateUIForBotType();
+      }
+    });
+
+    function updateUIForBotType() {
+      const container = document.getElementById('mainContainer');
+      const logo = document.getElementById('logo');
+      const title = document.getElementById('mainTitle');
+      const deployBtn = document.getElementById('deployBtn');
+      
+      if (currentBotType === 'khan') {
+        container.classList.remove('jawad');
+        logo.classList.remove('jawad');
+        title.classList.remove('jawad');
+        title.textContent = 'KHAN-MD BOT';
+        deployBtn.innerHTML = '<i class="fas fa-rocket"></i> Deploy KHAN-MD';
+        
+        document.getElementById('khanBtn').classList.add('active');
+        document.getElementById('jawadBtn').classList.remove('active');
+      } else {
+        container.classList.add('jawad');
+        logo.classList.add('jawad');
+        title.classList.add('jawad');
+        title.textContent = 'JAWAD-MD BOT';
+        deployBtn.innerHTML = '<i class="fas fa-rocket"></i> Deploy JAWAD-MD';
+        
+        document.getElementById('jawadBtn').classList.add('active');
+        document.getElementById('khanBtn').classList.remove('active');
+      }
+      
+      // Reset config display
+      document.getElementById('configGrid').style.display = 'none';
+      document.getElementById('toggleConfig').textContent = 'Show Config';
+    }
+
+    // Toggle config visibility
+    document.getElementById('toggleConfig').addEventListener('click', function() {
+      const configGrid = document.getElementById('configGrid');
+      const toggleBtn = document.getElementById('toggleConfig');
+      
+      if (configGrid.style.display === 'none') {
+        configGrid.style.display = 'grid';
+        toggleBtn.textContent = 'Hide Config';
+        renderConfigItems();
+      } else {
+        configGrid.style.display = 'none';
+        toggleBtn.textContent = 'Show Config';
+      }
+    });
+
+    // Render configuration items based on current bot type
+    function renderConfigItems() {
+      const configGrid = document.getElementById('configGrid');
+      configGrid.innerHTML = '';
+      
+      const config = currentBotType === 'khan' ? khanConfig : jawadConfig;
+      
+      for (const [key, configItem] of Object.entries(config)) {
+        const configDiv = document.createElement('div');
+        configDiv.className = 'config-item';
+        
+        const label = document.createElement('span');
+        label.className = 'config-label';
+        label.textContent = key;
+        
+        let inputElement;
+        
+        if (configItem.type === 'checkbox') {
+          const container = document.createElement('div');
+          container.className = 'checkbox-container';
+          
+          inputElement = document.createElement('input');
+          inputElement.type = 'checkbox';
+          inputElement.id = `config-${key}`;
+          inputElement.checked = typeof configItem.value === 'boolean' ? configItem.value : configItem.value === 'true';
+          inputElement.className = 'config-value';
+          
+          const inputLabel = document.createElement('span');
+          inputLabel.className = 'checkbox-label';
+          inputLabel.textContent = inputElement.checked ? 'true' : 'false';
+          
+          inputElement.addEventListener('change', () => {
+            inputLabel.textContent = inputElement.checked ? 'true' : 'false';
+            configItem.value = inputElement.checked;
+          });
+          
+          container.appendChild(inputElement);
+          container.appendChild(inputLabel);
+          configDiv.appendChild(label);
+          configDiv.appendChild(container);
+        } 
+        else if (configItem.type === 'select') {
+          inputElement = document.createElement('select');
+          inputElement.id = `config-${key}`;
+          inputElement.className = 'config-value';
+          
+          configItem.options.forEach(option => {
+            const opt = document.createElement('option');
+            opt.value = option;
+            opt.textContent = option;
+            if (option === configItem.value) opt.selected = true;
+            inputElement.appendChild(opt);
+          });
+          
+          inputElement.addEventListener('change', () => {
+            configItem.value = inputElement.value;
+          });
+          
+          configDiv.appendChild(label);
+          configDiv.appendChild(inputElement);
+        }
+        else {
+          inputElement = document.createElement('input');
+          inputElement.type = 'text';
+          inputElement.id = `config-${key}`;
+          inputElement.className = 'config-value';
+          inputElement.value = configItem.value;
+          
+          inputElement.addEventListener('change', () => {
+            configItem.value = inputElement.value;
+          });
+          
+          configDiv.appendChild(label);
+          configDiv.appendChild(inputElement);
+        }
+        
+        configGrid.appendChild(configDiv);
+      }
+    }
+
+    // Check if user has forked the appropriate repository
+    async function checkFork(username, botType) {
+      try {
+        const parentRepos = botType === 'khan' 
+          ? ['JawadTechXD/KHAN-MD', 'JawadYT36/KHAN-MD'] 
+          : ['JawadTechXD/JAWAD-MD'];
+        
+        for (const repo of parentRepos) {
+          // Method 1: Direct repo check
+          const repoName = botType === 'khan' ? 'KHAN-MD' : 'JAWAD-MD';
+          const repoResponse = await fetch(`https://api.github.com/repos/${username}/${repoName}`);
+          
+          if (repoResponse.ok) {
+            const repoData = await repoResponse.json();
+            if (repoData.fork && repoData.parent && parentRepos.includes(repoData.parent.full_name)) {
+              return true;
+            }
+          }
+
+          // Method 2: Check forks list
+          const forksResponse = await fetch(`https://api.github.com/repos/${repo}/forks`);
+          if (forksResponse.ok) {
+            const forks = await forksResponse.json();
+            if (forks.some(fork => 
+              fork.owner && fork.owner.login.toLowerCase() === username.toLowerCase()
+            )) {
+              return true;
+            }
+          }
+        }
+        
+        return false;
+      } catch (error) {
+        console.error('Fork check error:', error);
+        return false;
+      }
+    }
+
+    // Check user deployment limit
+    async function checkDeploymentLimit(username) {
+      try {
+        // First check if user is in pro list
+        const proResponse = await fetch('https://raw.githubusercontent.com/JawadTechXD/pro-users/main/pro.json');
+        if (proResponse.ok) {
+          const proUsers = await proResponse.json();
+          const proUser = proUsers.find(user => user.username.toLowerCase() === username.toLowerCase());
+          
+          if (proUser) {
+            return { allowed: true, limit: proUser.limit || 5 };
+          }
+        }
+        
+        // For non-pro users, check current deployments
+        const deploymentsResponse = await fetch(`/api/deployments/${username}`);
+        if (deploymentsResponse.ok) {
+          const deployments = await deploymentsResponse.json();
+          return { 
+            allowed: deployments.count < 2, 
+            limit: 2,
+            current: deployments.count 
+          };
+        }
+        
+        return { allowed: true, limit: 2 }; // Default if API fails
+      } catch (error) {
+        console.error('Limit check error:', error);
+        return { allowed: true, limit: 2 }; // Default if API fails
+      }
+    }
+
+    // Deploy function
+    document.getElementById('deployBtn').addEventListener('click', async function() {
+      const username = document.getElementById('username').value.trim();
+      const session = document.getElementById('session').value.trim();
+      const appname = document.getElementById('appname').value.trim();
+      const result = document.getElementById('result');
+      const loading = document.getElementById('loading');
+      const deployBtn = document.getElementById('deployBtn');
+      
+      // Client-side validation
+      if (!username) {
+        showResult('❌ Please enter your GitHub username', 'error');
+        return;
+      }
+      
+      if (!session || !session.startsWith('IK~')) {
+        showResult('❌ Valid SESSION_ID is required (must start with IK~)', 'error');
+        return;
+      }
+      
+      loading.style.display = 'block';
+      result.textContent = '';
+      deployBtn.disabled = true;
+      
+      try {
+        // Check deployment limit
+        const limitCheck = await checkDeploymentLimit(username);
+        if (!limitCheck.allowed) {
+          loading.style.display = 'none';
+          showResult(`❌ You've reached the maximum deployment limit (${limitCheck.current}/${limitCheck.limit}). Please contact admin.`, 'error');
+          document.getElementById('contactModal').style.display = 'flex';
+          deployBtn.disabled = false;
+          return;
+        }
+        
+        // Check if user has forked the repo
+        const hasFork = await checkFork(username, currentBotType);
+        
+        if (!hasFork) {
+          const repoName = currentBotType === 'khan' ? 'KHAN-MD' : 'JAWAD-MD';
+          loading.style.display = 'none';
+          showResult(`❌ Please fork https://github.com/JawadTechXD/${repoName} first`, 'error');
+          deployBtn.disabled = false;
+          return;
+        }
+        
+        // Update SESSION_ID in config
+        const config = currentBotType === 'khan' ? khanConfig : jawadConfig;
+        config.SESSION_ID.value = session;
+        
+        // Prepare deployment data
+        const deploymentData = {
+          username,
+          session_id: session,
+          appname: appname || undefined,
+          bot_type: currentBotType,
+          config: config
+        };
+        
+        // Send deployment request
+        const response = await fetch('/deploy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(deploymentData)
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.error || 'Deployment failed');
+        }
+        
+        showResult(`✅ ${data.message}`, 'success');
+        deployBtn.textContent = 'Deploy New';
+        deployBtn.onclick = () => window.location.reload();
+        
+        if (data.url) {
+          setTimeout(() => {
+            showResult(`✅ ${data.message}<br>🔗 <a href="${data.url}" target="_blank">${data.url}</a><br>🔑 <strong>Access Token:</strong> ${data.token}`, 'success');
+          }, 2000);
+        }
+      } catch (error) {
+        console.error('Deployment error:', error);
+        showResult(`❌ ${error.message}`, 'error');
+        deployBtn.disabled = false;
+      } finally {
+        loading.style.display = 'none';
+      }
+    });
+
+    // Manage bots functionality
+    document.getElementById('manageBtn').addEventListener('click', function() {
+      document.getElementById('manageModal').style.display = 'flex';
+    });
+
+    document.getElementById('closeManageModal').addEventListener('click', function() {
+      document.getElementById('manageModal').style.display = 'none';
+    });
+
+    document.getElementById('closeContactModal').addEventListener('click', function() {
+      document.getElementById('contactModal').style.display = 'none';
+    });
+
+    document.getElementById('loadBotsBtn').addEventListener('click', async function() {
+      const token = document.getElementById('accessToken').value.trim();
+      const botsList = document.getElementById('botsList');
+      
+      if (!token) {
+        botsList.innerHTML = '<div class="result-message error">Please enter your access token</div>';
+        return;
+      }
+      
+      try {
+        const response = await fetch(`/api/bots?token=${token}`);
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to load bots');
+        }
+        
+        if (data.bots.length === 0) {
+          botsList.innerHTML = '<div class="result-message">No bots found for this token</div>';
+          return;
+        }
+        
+        let html = '<h3 style="margin-bottom: 15px;">Your Bots</h3>';
+        data.bots.forEach(bot => {
+          html += `
+            <div style="border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 10px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <strong>${bot.name}</strong> (${bot.type})<br>
+                  <small>Created: ${new Date(bot.createdAt).toLocaleDateString()}</small>
+                </div>
+                <div>
+                  <button class="deploy-btn" style="padding: 5px 10px; font-size: 12px;" onclick="manageBot('${bot.name}', '${token}', 'env')">Manage ENV</button>
+                  <button class="deploy-btn" style="padding: 5px 10px; font-size: 12px; background: #e74c3c;" onclick="manageBot('${bot.name}', '${token}', 'delete')">Delete</button>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        
+        botsList.innerHTML = html;
+      } catch (error) {
+        console.error('Load bots error:', error);
+        botsList.innerHTML = `<div class="result-message error">${error.message}</div>`;
+      }
+    });
+
+    // Global function to manage bots (called from the dynamically created buttons)
+    window.manageBot = async function(appName, token, action) {
+      try {
+        if (action === 'delete') {
+          if (!confirm(`Are you sure you want to delete ${appName}? This action cannot be undone.`)) {
+            return;
+          }
+          
+          const response = await fetch(`/api/bots/${appName}?token=${token}`, {
+            method: 'DELETE'
+          });
+          
+          const data = await response.json();
+          
+          if (!response.ok) {
+            throw new Error(data.error || 'Failed to delete bot');
+          }
+          
+          showToast(`✅ ${appName} deleted successfully`);
+          document.getElementById('loadBotsBtn').click(); // Refresh the list
+        } else if (action === 'env') {
+          // Open environment management modal
+          showToast(`Environment management for ${appName} would open here`);
+        }
+      } catch (error) {
+        console.error('Manage bot error:', error);
+        showToast(`❌ ${error.message}`);
+      }
+    };
+    
+    function showResult(message, type) {
+      const result = document.getElementById('result');
+      result.innerHTML = message;
+      result.className = `result-message ${type}`;
+    }
+    
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.style.display = 'block';
+      toast.style.opacity = '1';
+      
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => {
+          toast.style.display = 'none';
+        }, 300);
+      }, 2000);
+    }
+  </script>
+</body>
+</html>

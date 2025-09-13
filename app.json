@@ -1,0 +1,17 @@
+{
+  "name": "khan-md-deployer",
+  "description": "Auto deploy system for KHAN-MD bot",
+  "repository": "https://github.com/JawadTechXD/IK",
+  "keywords": ["node", "express", "auto-deploy"],
+  "env": {
+    "APP_NAME": {
+      "description": "Name of the Heroku app to deploy",
+      "required": true
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ]
+}
