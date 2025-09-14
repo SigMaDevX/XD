@@ -135,7 +135,7 @@ app.post('/deploy', async (req, res) => {
     // Check if user is a pro user
     let userLimit = 2;
     try {
-      const proResponse = await axios.get('https://raw.githubusercontent.com/JawadTechXD/pro-users/main/pro.json');
+      const proResponse = await axios.get('https://raw.githubusercontent.com/JawadTechXD/VPS/main/user.json');
       const proUsers = proResponse.data;
       const proUser = proUsers.find(user => user.username.toLowerCase() === username.toLowerCase());
       if (proUser) {
